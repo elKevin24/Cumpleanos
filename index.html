@@ -94,38 +94,131 @@
   .tw:nth-of-type(3){right:4%;top:52%;font-size:14px;color:var(--rose);animation-delay:1.7s}
   .tw:nth-of-type(4){left:0;top:58%;font-size:20px;color:var(--mint);animation-delay:2.3s}
   @keyframes twinkle{0%,100%{opacity:.25;transform:scale(.6) rotate(0)}50%{opacity:1;transform:scale(1.1) rotate(25deg)}}
-  .fs{--s:1;transform:scale(var(--s));transform-box:fill-box;transform-origin:50% 100%;transition:transform .6s cubic-bezier(.34,1.3,.5,1)}
+  .fs{--s:1;transform:scale(var(--s));transform-box:fill-box;transform-origin:50% 100%;transition:transform .5s cubic-bezier(.34,1.3,.5,1)}
   .fs.h{transform-origin:center}
-  .flame{transform-box:fill-box;transform-origin:50% 100%;animation:flicker .18s infinite alternate ease-in-out}
-  .fs:nth-child(2) .flame{animation-delay:.07s}
-  .fs:nth-child(3) .flame{animation-delay:.12s}
-  @keyframes flicker{
-    from{transform:scale(1,1) rotate(-2deg)}
-    to{transform:scale(.92,1.08) rotate(2deg)}
+  
+  /* Llama externa: baile orgánico en reposo */
+  .flame{
+    transform-box:fill-box;
+    transform-origin:50% 100%;
+    filter:drop-shadow(0 0 7px rgba(255,160,20,0.85)) drop-shadow(0 -3px 10px rgba(255,70,0,0.5));
+    animation:flameDance .26s infinite alternate ease-in-out;
   }
-  .halo{transform-box:fill-box;transform-origin:center;animation:haloPulse 1.6s ease-in-out infinite alternate}
+  /* Núcleo interno incandescente */
+  .flame-core{
+    transform-box:fill-box;
+    transform-origin:50% 100%;
+    animation:coreDance .26s infinite alternate ease-in-out;
+    pointer-events:none;
+  }
+  .fs:nth-child(1) .flame{animation-duration:.25s;animation-delay:0s}
+  .fs:nth-child(2) .flame{animation-duration:.31s;animation-delay:.08s}
+  .fs:nth-child(3) .flame{animation-duration:.28s;animation-delay:.16s}
+  .fs:nth-child(1) .flame-core{animation-duration:.25s}
+  .fs:nth-child(2) .flame-core{animation-duration:.31s;animation-delay:.08s}
+  .fs:nth-child(3) .flame-core{animation-duration:.28s;animation-delay:.16s}
+
+  @keyframes flameDance{
+    0%{transform:scale(1,1) rotate(-3deg) skewX(-2deg)}
+    35%{transform:scale(.95,1.06) rotate(2deg) skewX(2deg)}
+    70%{transform:scale(1.04,.96) rotate(-1deg) skewX(-3deg)}
+    100%{transform:scale(.92,1.08) rotate(3deg) skewX(2deg)}
+  }
+  @keyframes coreDance{
+    0%{transform:scale(1,1) rotate(-2deg);opacity:.95}
+    50%{transform:scale(.93,1.06) rotate(1deg);opacity:1}
+    100%{transform:scale(1.03,.94) rotate(2deg);opacity:.85}
+  }
+
+  .halo{transform-box:fill-box;transform-origin:center;animation:haloPulse 1.6s ease-in-out infinite alternate;transition:transform .2s,opacity .2s}
   @keyframes haloPulse{
     from{transform:scale(.9);opacity:.65}
     to{transform:scale(1.1);opacity:1}
   }
-  .flame.out,.halo.out{animation:none;opacity:0;transform:scale(.2);transition:opacity .4s,transform .4s}
+
+  /* Fuego agitado al soplar: estiramiento diagonal, turbulencia caótica y flickering de alta frecuencia */
+  #cake.blowing .flame, #cake.winded .flame{
+    animation:fireBlown .11s infinite alternate cubic-bezier(.3,.8,.4,1) !important;
+    filter:drop-shadow(0 0 12px rgba(255,90,0,0.95)) drop-shadow(4px -3px 14px rgba(255,30,0,0.7));
+  }
+  #cake.blowing .flame-core, #cake.winded .flame-core{
+    animation:coreBlown .11s infinite alternate cubic-bezier(.3,.8,.4,1) !important;
+  }
+  #cake.blowing .halo, #cake.winded .halo{
+    animation:haloBlown .12s infinite alternate ease-in-out !important;
+  }
+  #cake.blowing .fs:nth-child(2) .flame, #cake.winded .fs:nth-child(2) .flame{animation-delay:-.04s !important}
+  #cake.blowing .fs:nth-child(3) .flame, #cake.winded .fs:nth-child(3) .flame{animation-delay:-.07s !important}
+
+  @keyframes fireBlown{
+    0%{
+      transform:rotate(calc(var(--blow-angle, 32deg) - 6deg)) skewX(22deg) scale(1.18, 0.52);
+      opacity:.95;
+    }
+    28%{
+      transform:rotate(calc(var(--blow-angle, 32deg) + 14deg)) skewX(38deg) scale(1.38, 0.40);
+      opacity:.78;
+    }
+    60%{
+      transform:rotate(calc(var(--blow-angle, 32deg) - 3deg)) skewX(18deg) scale(1.08, 0.62);
+      opacity:.92;
+    }
+    82%{
+      transform:rotate(calc(var(--blow-angle, 32deg) + 18deg)) skewX(42deg) scale(1.46, 0.35);
+      opacity:.72;
+    }
+    100%{
+      transform:rotate(calc(var(--blow-angle, 32deg) + 5deg)) skewX(26deg) scale(1.22, 0.48);
+      opacity:.98;
+    }
+  }
+
+  @keyframes coreBlown{
+    0%{transform:rotate(calc(var(--blow-angle, 32deg) - 4deg)) skewX(18deg) scale(1.12, 0.48);opacity:.9}
+    50%{transform:rotate(calc(var(--blow-angle, 32deg) + 12deg)) skewX(32deg) scale(1.28, 0.32);opacity:.45}
+    100%{transform:rotate(calc(var(--blow-angle, 32deg) + 2deg)) skewX(22deg) scale(1.06, 0.42);opacity:.85}
+  }
+
+  @keyframes haloBlown{
+    0%{transform:translate(10px, 4px) scale(.65);opacity:.4}
+    50%{transform:translate(18px, 7px) scale(.35);opacity:.18}
+    100%{transform:translate(13px, 5px) scale(.5);opacity:.35}
+  }
+
+  /* Sobresalto de extinción momentánea al primer soplido fuerte */
+  .flame.gasp{
+    animation:gaspFlutter .45s ease-out forwards !important;
+  }
+  @keyframes gaspFlutter{
+    0%{transform:rotate(38deg) skewX(32deg) scale(1.3, 0.38);opacity:.9}
+    30%{transform:rotate(46deg) skewX(44deg) scale(0.4, 0.18);opacity:.25}
+    65%{transform:rotate(28deg) skewX(22deg) scale(0.85, 0.65);opacity:.75}
+    100%{transform:rotate(32deg) skewX(26deg) scale(1.15, 0.52);opacity:.92}
+  }
+
+  .flame.out,.flame-core.out,.halo.out{animation:none !important;opacity:0 !important;transform:scale(.2) !important;transition:opacity .35s,transform .35s}
   .puff{fill:rgba(140,110,170,.4);opacity:0;transform-box:fill-box;transform-origin:center;animation:puff 1.8s ease-out both}
   @keyframes puff{
     0%{opacity:0;transform:translate(0,0) scale(.6)}
     20%{opacity:.7}
     100%{opacity:0;transform:translate(6px,-46px) scale(2.4)}
   }
-  #cake.winded .flame{
-    animation: windFlicker .1s infinite alternate ease-in-out;
-    transform: rotate(26deg) skewX(20deg) scale(0.65, 0.85);
+  /* Partículas de chispa de fuego que vuelan con el soplido */
+  .fire-spark{
+    position:fixed;
+    pointer-events:none;
+    z-index:23;
+    width:5px;
+    height:5px;
+    border-radius:50%;
+    background:#fff;
+    box-shadow:0 0 6px #ffbe0b, 0 0 12px #fb5607, 0 0 2px #fff;
+    animation:sparkFly .55s cubic-bezier(.2,.8,.3,1) forwards;
   }
-  #cake.winded .halo{
-    transform: translate(14px, 4px) scale(0.5);
-    opacity: 0.35;
-  }
-  @keyframes windFlicker{
-    from{transform: rotate(20deg) skewX(16deg) scale(0.6, 0.8)}
-    to{transform: rotate(28deg) skewX(24deg) scale(0.68, 0.9)}
+  @keyframes sparkFly{
+    0%{opacity:1;transform:translate3d(0,0,0) scale(1.3)}
+    45%{opacity:.95}
+    100%{opacity:0;transform:translate3d(var(--sx),var(--sy),0) scale(.2)}
   }
   .wish-burst{position:fixed;z-index:25;pointer-events:none;font-size:24px;line-height:1;animation:wishRise 2.2s cubic-bezier(.22,1,.36,1) forwards;filter:drop-shadow(0 4px 10px rgba(255,209,102,.7))}
   @keyframes wishRise{
@@ -303,8 +396,18 @@
         <linearGradient id="gFrostTop" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffabcd"/><stop offset="1" stop-color="#f2699f"/></linearGradient>
         <linearGradient id="gFrostBot" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d6c7ff"/><stop offset="1" stop-color="#a68cff"/></linearGradient>
         <linearGradient id="gPlate" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".95"/><stop offset="1" stop-color="#fff" stop-opacity=".45"/></linearGradient>
-        <radialGradient id="gFlame" cx="50%" cy="72%" r="62%"><stop offset="0" stop-color="#fffbd0"/><stop offset=".5" stop-color="#ffcf55"/><stop offset="1" stop-color="#ff8a3d"/></radialGradient>
-        <radialGradient id="gHalo"><stop offset="0" stop-color="#ffe8a3" stop-opacity=".8"/><stop offset="1" stop-color="#ffe8a3" stop-opacity="0"/></radialGradient>
+        <radialGradient id="gFlame" cx="50%" cy="75%" r="62%">
+          <stop offset="0%" stop-color="#fff8db"/>
+          <stop offset="38%" stop-color="#ffb703"/>
+          <stop offset="78%" stop-color="#fb8500"/>
+          <stop offset="100%" stop-color="#d90429"/>
+        </radialGradient>
+        <radialGradient id="gFlameCore" cx="50%" cy="80%" r="52%">
+          <stop offset="0%" stop-color="#ffffff"/>
+          <stop offset="55%" stop-color="#fff4b8"/>
+          <stop offset="100%" stop-color="#ffbe0b" stop-opacity="0"/>
+        </radialGradient>
+        <radialGradient id="gHalo"><stop offset="0" stop-color="#ffe8a3" stop-opacity=".85"/><stop offset="1" stop-color="#ffe8a3" stop-opacity="0"/></radialGradient>
       </defs>
       <ellipse cx="150" cy="264" rx="132" ry="8" fill="#7a3a8c" opacity=".14"/>
       <ellipse cx="150" cy="252" rx="140" ry="17" fill="url(#gPlate)" stroke="#fff" stroke-opacity=".9"/>
@@ -346,9 +449,18 @@
         <g class="fs h"><circle class="halo" cx="195" cy="72" r="26" fill="url(#gHalo)"/></g>
       </g>
       <g>
-        <g class="fs"><path class="flame" d="M105 86c-8-8-6-17 0-27 6 10 8 19 0 27z" fill="url(#gFlame)"/></g>
-        <g class="fs"><path class="flame" d="M150 86c-8-8-6-17 0-27 6 10 8 19 0 27z" fill="url(#gFlame)"/></g>
-        <g class="fs"><path class="flame" d="M195 86c-8-8-6-17 0-27 6 10 8 19 0 27z" fill="url(#gFlame)"/></g>
+        <g class="fs">
+          <path class="flame" d="M105 86c-8-8-6-17 0-27 6 10 8 19 0 27z" fill="url(#gFlame)"/>
+          <path class="flame-core" d="M105 85c-4-5-3-11 0-18 3 7 4 13 0 18z" fill="url(#gFlameCore)"/>
+        </g>
+        <g class="fs">
+          <path class="flame" d="M150 86c-8-8-6-17 0-27 6 10 8 19 0 27z" fill="url(#gFlame)"/>
+          <path class="flame-core" d="M150 85c-4-5-3-11 0-18 3 7 4 13 0 18z" fill="url(#gFlameCore)"/>
+        </g>
+        <g class="fs">
+          <path class="flame" d="M195 86c-8-8-6-17 0-27 6 10 8 19 0 27z" fill="url(#gFlame)"/>
+          <path class="flame-core" d="M195 85c-4-5-3-11 0-18 3 7 4 13 0 18z" fill="url(#gFlameCore)"/>
+        </g>
       </g>
       <g id="smoke"></g>
     </svg>
@@ -627,7 +739,7 @@ function loop(){
 
 /* ---- Velitas: dos soplidos o toques ---- */
 let out = false, blows = 0, cooling = false;
-const lights = () => document.querySelectorAll('#cake .halo, #cake .flame');
+const lights = () => document.querySelectorAll('#cake .halo, #cake .flame, #cake .flame-core');
 
 const isWebView = /FBAN|FBAV|Instagram|WhatsApp|Line|Messenger/i.test(navigator.userAgent);
 if (isWebView){
@@ -708,30 +820,63 @@ function launchWishSparks(){
   });
 }
 
+function spawnFireSparks(candleIdx, count = 2){
+  const cake = $('cake');
+  if (!cake) return;
+  const rect = cake.getBoundingClientRect();
+  const xs = [0.35, 0.50, 0.65];
+  const originX = rect.left + rect.width * (xs[candleIdx] ?? 0.5);
+  const originY = rect.top + rect.height * 0.26;
+  for (let i = 0; i < count; i++){
+    const sp = document.createElement('span');
+    sp.className = 'fire-spark';
+    sp.style.left = (originX + (Math.random() - 0.5) * 10) + 'px';
+    sp.style.top = (originY + (Math.random() - 0.5) * 6) + 'px';
+    sp.style.setProperty('--sx', (30 + Math.random() * 65) + 'px');
+    sp.style.setProperty('--sy', (-18 - Math.random() * 36) + 'px');
+    document.body.appendChild(sp);
+    setTimeout(() => sp.remove(), 560);
+  }
+}
+
 function blow(){
   if (out || cooling) return;
   blows++;
-  if (navigator.vibrate) navigator.vibrate(50);
+  if (navigator.vibrate) navigator.vibrate([40, 30, 40]);
   triggerWindGust();
+
+  // Chispitas volando de las velas
+  [0, 1, 2].forEach(ci => spawnFireSparks(ci, 3));
 
   if (blows >= 2){ blowOut(); return; }
 
-  // Turbulencia e inclinación de viento
-  $('cake').classList.add('winded');
-  document.querySelectorAll('#cake .fs').forEach(f => f.style.setProperty('--s', '.55'));
-  $('cake').setAttribute('aria-label','Pastel con tres velitas casi apagadas');
-  $('hint').textContent = '¡Casi! Las llamas se agitan. Sopla o toca una vez más.';
-  cooling = true; setTimeout(() => { cooling = false; }, 900);
+  // Primer soplido: fuego sacudido violentamente, una vela casi se ahoga
+  const cake = $('cake');
+  cake.classList.add('winded');
+  cake.style.setProperty('--blow-angle', '38deg');
+
+  const flames = document.querySelectorAll('#cake .flame');
+  if (flames[1]){
+    flames[1].classList.add('gasp');
+    setTimeout(() => flames[1]?.classList.remove('gasp'), 460);
+  }
+
+  document.querySelectorAll('#cake .fs').forEach(f => f.style.setProperty('--s', '.58'));
+  cake.setAttribute('aria-label','Pastel con tres velitas agitadas luchando contra el viento');
+  $('hint').textContent = '¡Casi! Las llamas luchan contra el aire… ¡Sopla una vez más!';
+  cooling = true; setTimeout(() => { cooling = false; }, 850);
 }
 
 function blowOut(){
   if (out) return; out = true;
-  $('cake').classList.remove('winded');
+  const cake = $('cake');
+  cake.classList.remove('winded', 'blowing');
+  cake.style.removeProperty('--blow-angle');
   $('blow-meter')?.classList.remove('on');
-  if (navigator.vibrate) navigator.vibrate([60, 80, 120]);
+  if (navigator.vibrate) navigator.vibrate([60, 80, 140]);
   playWishSound();
 
-  lights().forEach((f, i) => setTimeout(() => f.classList.add('out'), (i % 3) * 180));
+  lights().forEach((f, i) => setTimeout(() => f.classList.add('out'), (i % 3) * 160));
 
   // Destello cálido en pantalla móvil
   const flash = $('glow-flash');
@@ -752,7 +897,7 @@ function blowOut(){
       }
     });
   }
-  $('cake').setAttribute('aria-label','Pastel con las velitas apagadas');
+  cake.setAttribute('aria-label','Pastel con las velitas apagadas');
   $('hint').textContent = '✨ ¡Deseo pedido con el corazón! ✨';
   $('mic').classList.add('hidden'); $('tap').classList.add('hidden');
   setTimeout(() => { confetti(); reveal('s-letter'); }, 1400);
@@ -779,6 +924,7 @@ async function startMic(){
     ac.createMediaStreamSource(stream).connect(an);
     const data = new Uint8Array(an.fftSize);
     let loud = 0, quiet = 0, armed = true;
+    const cake = $('cake');
     $('mic').classList.add('hidden');
     $('blow-meter')?.classList.add('on');
     $('hint').textContent = 'Te escucho… ¡sopla hacia el micrófono!';
@@ -786,6 +932,7 @@ async function startMic(){
       if (out){
         stream.getTracks().forEach(t => t.stop());
         ac.close();
+        cake.classList.remove('blowing', 'winded');
         $('blow-meter')?.classList.remove('on');
         return;
       }
@@ -793,25 +940,29 @@ async function startMic(){
       let sum = 0; for (const v of data){ const d = (v-128)/128; sum += d*d; }
       const rms = Math.sqrt(sum/data.length);
 
-      // Feedback visual en tiempo real de la intensidad del soplido
+      // Barra visual de intensidad
       const pct = Math.min(100, Math.round((rms / 0.16) * 100));
       const bar = $('blow-bar');
       if (bar) bar.style.width = pct + '%';
 
-      // Reacción de viento de las llamas en tiempo real
-      if (rms > 0.05 && !out){
-        const angle = Math.min(26, Math.round(rms * 140));
-        document.querySelectorAll('#cake .flame').forEach(f => {
-          f.style.transform = `rotate(${angle}deg) skewX(${angle * 0.7}deg)`;
-        });
+      // Dinámica reactiva de fuego vivo al detectar flujo de aire
+      if (rms > 0.04 && !out){
+        cake.classList.add('blowing');
+        const bend = Math.min(50, Math.round(22 + rms * 155));
+        cake.style.setProperty('--blow-angle', bend + 'deg');
+        if (rms > 0.08 && Math.random() < 0.42){
+          spawnFireSparks(Math.floor(Math.random() * 3), 1);
+        }
+      } else if (!out){
+        cake.classList.remove('blowing');
       }
 
       if (!armed){
-        quiet = rms < 0.1 ? quiet+1 : 0;
-        if (quiet > 16){ armed = true; loud = 0; }
+        quiet = rms < 0.09 ? quiet+1 : 0;
+        if (quiet > 14){ armed = true; loud = 0; }
       } else {
-        loud = rms > 0.16 ? loud+1 : Math.max(0, loud-1);
-        if (loud > 6){ blow(); loud = 0; quiet = 0; armed = false; }
+        loud = rms > 0.15 ? loud+1 : Math.max(0, loud-1);
+        if (loud > 5){ blow(); loud = 0; quiet = 0; armed = false; }
       }
       requestAnimationFrame(tick);
     })();
