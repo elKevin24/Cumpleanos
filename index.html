@@ -135,6 +135,27 @@
   }
   .glow-flash{position:fixed;inset:0;background:radial-gradient(circle,rgba(255,225,140,.5),rgba(255,143,184,.2),transparent 75%);z-index:8;pointer-events:none;opacity:0;transition:opacity .4s ease-out}
   .glow-flash.on{opacity:1;transition:opacity .2s ease-in}
+
+  /* Ráfaga de viento visual sobre el pastel */
+  .wind-gust{position:absolute;left:-20%;top:18%;width:140%;height:65px;pointer-events:none;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.75),transparent);filter:blur(8px);border-radius:50%;opacity:0;z-index:5}
+  .wind-gust.active{animation:gustSweep 0.65s cubic-bezier(.2,.8,.4,1) forwards}
+  @keyframes gustSweep{
+    0%{opacity:0;transform:translateX(-100px) scaleY(0.7) skewX(-25deg)}
+    35%{opacity:0.9}
+    100%{opacity:0;transform:translateX(110px) scaleY(1.3) skewX(-35deg)}
+  }
+
+  /* Chispitas que vuelan con el aire */
+  .ember{position:fixed;pointer-events:none;z-index:22;width:6px;height:6px;border-radius:50%;background:#ffd166;box-shadow:0 0 10px #ff6fa5, 0 0 4px #fff;animation:emberFly 0.75s ease-out forwards}
+  @keyframes emberFly{
+    0%{opacity:1;transform:translate3d(0,0,0) scale(1)}
+    100%{opacity:0;transform:translate3d(var(--ex),var(--ey),0) scale(0.2)}
+  }
+
+  /* Medidor en tiempo real de soplido */
+  .blow-meter{width:min(240px,70vw);height:10px;margin:0.85rem auto 0;background:rgba(255,255,255,0.22);border:1px solid rgba(255,255,255,0.5);border-radius:999px;overflow:hidden;box-shadow:inset 0 1px 3px rgba(0,0,0,0.12);display:none}
+  .blow-meter.on{display:block;animation:pop .4s ease-out both}
+  .blow-meter-bar{height:100%;width:0%;border-radius:999px;background:linear-gradient(90deg,var(--mint),var(--rose),var(--butter));transition:width 0.06s linear;box-shadow:0 0 10px rgba(255,111,165,0.8)}
   #hint{margin-top:1rem;font-weight:700}
   #hint:empty{display:none}
   #confetti{position:fixed;inset:0;pointer-events:none;z-index:10}
@@ -274,6 +295,7 @@
   <h1 id="title">Feliz cumpleaños</h1>
   <p>Antes de nada, pide un deseo y apaga las velitas. Son tercas: hay que soplar dos veces.</p>
   <div id="cake-wrap">
+    <div id="wind-gust" class="wind-gust" aria-hidden="true"></div>
     <span class="tw" aria-hidden="true">✦</span><span class="tw" aria-hidden="true">✦</span><span class="tw" aria-hidden="true">✦</span><span class="tw" aria-hidden="true">✦</span>
     <svg id="cake" viewBox="0 0 300 280" role="img" aria-label="Pastel con tres velitas encendidas">
       <defs>
@@ -333,6 +355,7 @@
   </div>
   <p class="small" id="mic-note" style="margin-top:1rem">Al tocar el botón, el navegador te pedirá permiso para usar el micrófono. Solo detecta el soplido; no se graba nada.</p>
   <p id="hint" class="glass pill" role="status" aria-live="polite"></p>
+  <div id="blow-meter" class="blow-meter" aria-hidden="true"><div id="blow-bar" class="blow-meter-bar"></div></div>
   <div class="actions">
     <button class="btn" id="mic">Soplar con el micrófono</button>
     <button class="btn ghost" id="tap">Apagar con un toque</button>
@@ -636,6 +659,28 @@ function playWishSound(){
   } catch(e){}
 }
 
+function triggerWindGust(){
+  const gust = $('wind-gust');
+  if (gust){
+    gust.classList.remove('active');
+    void gust.offsetWidth;
+    gust.classList.add('active');
+  }
+  const cake = $('cake');
+  if (!cake) return;
+  const rect = cake.getBoundingClientRect();
+  for (let i = 0; i < 6; i++){
+    const ember = document.createElement('span');
+    ember.className = 'ember';
+    ember.style.left = (rect.left + rect.width * (0.35 + Math.random() * 0.3)) + 'px';
+    ember.style.top = (rect.top + rect.height * (0.24 + Math.random() * 0.08)) + 'px';
+    ember.style.setProperty('--ex', (40 + Math.random() * 80) + 'px');
+    ember.style.setProperty('--ey', (-30 - Math.random() * 45) + 'px');
+    document.body.appendChild(ember);
+    setTimeout(() => ember.remove(), 750);
+  }
+}
+
 function launchWishSparks(){
   const cake = $('cake');
   const rect = cake.getBoundingClientRect();
@@ -667,6 +712,8 @@ function blow(){
   if (out || cooling) return;
   blows++;
   if (navigator.vibrate) navigator.vibrate(50);
+  triggerWindGust();
+
   if (blows >= 2){ blowOut(); return; }
 
   // Turbulencia e inclinación de viento
@@ -680,6 +727,7 @@ function blow(){
 function blowOut(){
   if (out) return; out = true;
   $('cake').classList.remove('winded');
+  $('blow-meter')?.classList.remove('on');
   if (navigator.vibrate) navigator.vibrate([60, 80, 120]);
   playWishSound();
 
@@ -732,28 +780,50 @@ async function startMic(){
     const data = new Uint8Array(an.fftSize);
     let loud = 0, quiet = 0, armed = true;
     $('mic').classList.add('hidden');
-    $('hint').textContent = 'Te escucho… sopla fuerte hacia el micrófono (son dos soplidos).';
+    $('blow-meter')?.classList.add('on');
+    $('hint').textContent = 'Te escucho… ¡sopla hacia el micrófono!';
     (function tick(){
-      if (out){ stream.getTracks().forEach(t => t.stop()); ac.close(); return; }
+      if (out){
+        stream.getTracks().forEach(t => t.stop());
+        ac.close();
+        $('blow-meter')?.classList.remove('on');
+        return;
+      }
       an.getByteTimeDomainData(data);
       let sum = 0; for (const v of data){ const d = (v-128)/128; sum += d*d; }
       const rms = Math.sqrt(sum/data.length);
+
+      // Feedback visual en tiempo real de la intensidad del soplido
+      const pct = Math.min(100, Math.round((rms / 0.16) * 100));
+      const bar = $('blow-bar');
+      if (bar) bar.style.width = pct + '%';
+
+      // Reacción de viento de las llamas en tiempo real
+      if (rms > 0.05 && !out){
+        const angle = Math.min(26, Math.round(rms * 140));
+        document.querySelectorAll('#cake .flame').forEach(f => {
+          f.style.transform = `rotate(${angle}deg) skewX(${angle * 0.7}deg)`;
+        });
+      }
+
       if (!armed){
         quiet = rms < 0.1 ? quiet+1 : 0;
-        if (quiet > 20){ armed = true; loud = 0; }
+        if (quiet > 16){ armed = true; loud = 0; }
       } else {
-        loud = rms > 0.18 ? loud+1 : Math.max(0, loud-1);
-        if (loud > 8){ blow(); loud = 0; quiet = 0; armed = false; }
+        loud = rms > 0.16 ? loud+1 : Math.max(0, loud-1);
+        if (loud > 6){ blow(); loud = 0; quiet = 0; armed = false; }
       }
       requestAnimationFrame(tick);
     })();
   }catch(e){
     listening = false;
+    $('blow-meter')?.classList.remove('on');
     $('hint').textContent = 'Toca el pastel directamente para apagar las velitas.';
     $('tap').style.transform = 'scale(1.05)';
     $('mic').textContent = 'Reintentar micrófono';
   }
 }
+
 $('mic').onclick = startMic;
 
 /* ---- Revelar secciones ---- */
