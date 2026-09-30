@@ -7,6 +7,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT@0,9..144,400..700,100;1,9..144,400..700,100&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="prefetch" href="music.m4a" as="audio">
+<link rel="prefetch" href="music.mp3" as="audio">
 <style>
   :root{
     --bg:#fdeef6; --ink:#3a2050; --berry:#c22d70; --rose:#ff6fa5; --lav:#b9a6ff; --mint:#7fdcc0; --butter:#ffd166;
@@ -301,12 +303,22 @@
   .sparkle{position:fixed;z-index:20;pointer-events:none;font-size:15px;line-height:1}
 
   /* ---------- Carta ---------- */
-  .polaroid{position:relative;z-index:2;background:#fff;padding:.5rem .5rem 1.6rem;border-radius:6px;
-    box-shadow:0 14px 30px rgba(150,60,140,.26);transform:rotate(-2.5deg);
-    width:min(250px,70vw);margin:.35rem auto .75rem;display:block}
-  .polaroid::before{content:"";position:absolute;left:50%;top:-11px;width:72px;height:22px;transform:translateX(-50%) rotate(3deg);
+  #s-letter{
+    min-height:calc(var(--vh, 1vh) * 100);
+    max-height:calc(var(--vh, 1vh) * 100);
+    height:calc(var(--vh, 1vh) * 100);
+    display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
+    padding:max(0.7rem, env(safe-area-inset-top)) 1rem max(1.5rem, env(safe-area-inset-bottom));
+    overflow-y:auto !important;overflow-x:hidden;-webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
+  }
+  #s-letter::-webkit-scrollbar{display:none}
+  .polaroid{position:relative;z-index:2;background:#fff;padding:.45rem .45rem 1.35rem;border-radius:6px;
+    box-shadow:0 12px 26px rgba(150,60,140,.24);transform:rotate(-2deg);
+    width:min(170px,48vw);margin:.25rem auto .55rem;display:block;flex-shrink:0}
+  .polaroid::before{content:"";position:absolute;left:50%;top:-10px;width:66px;height:20px;transform:translateX(-50%) rotate(3deg);
     background:rgba(255,209,102,.72);border-radius:4px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.5)}
-  .polaroid img{width:100%;height:auto;display:block;border-radius:4px}
+  .polaroid img{width:100%;height:auto;display:block;border-radius:3px}
   .envelope{position:relative;width:min(290px,80vw);height:180px;padding:0;margin:.4rem auto .8rem;
     background:transparent;border:none;perspective:1000px;transform-style:preserve-3d;
     animation:envelopePopIn 0.85s cubic-bezier(0.34, 1.56, 0.64, 1) both;
@@ -387,8 +399,9 @@
     62%{opacity:.85}
     100%{transform:scale(1.4);opacity:0}
   }
-  #letter{max-width:34rem;text-align:left;border-radius:28px;padding:1.6rem 1.5rem;
-    font-family:var(--display);font-weight:400;font-size:1.15rem;line-height:1.75;white-space:pre-wrap;
+  #letter{max-width:32rem;width:100%;text-align:left;border-radius:24px;padding:1.15rem 1.25rem;
+    font-family:var(--display);font-weight:400;font-size:1.02rem;line-height:1.62;white-space:pre-wrap;
+    word-break:break-word;box-sizing:border-box;margin:.35rem auto .75rem;
     box-shadow:inset 0 1px 0 var(--gh),0 16px 36px var(--gs);
   }
   #letter.emerging{
@@ -529,17 +542,22 @@
     #hint{margin-top:0.25rem;padding:0.3rem 0.8rem;font-size:0.82rem}
     .blow-meter{margin:0.35rem auto 0;height:8px}
     .actions{margin-top:0.35rem;gap:0.4rem}
-    .polaroid{width:min(180px, 52vw);padding:.35rem .35rem 1.1rem;margin:.2rem auto .45rem;box-shadow:0 10px 22px rgba(150,60,140,.22)}
+    #s-letter{
+      padding-top:max(0.5rem, env(safe-area-inset-top));
+      padding-bottom:max(1.8rem, env(safe-area-inset-bottom));
+      justify-content:flex-start;
+      overflow-y:auto !important;
+    }
+    .polaroid{width:min(160px, 46vw);padding:.35rem .35rem 1.1rem;margin:.15rem auto .45rem;box-shadow:0 10px 22px rgba(150,60,140,.22)}
     .polaroid img{width:100%;height:auto}
     .envelope{width:min(240px, 78vw);height:140px;margin:.2rem auto .5rem}
     #letter{
-      padding:0.9rem 0.95rem;
+      padding:0.95rem 1.05rem;
       font-size:0.94rem;
-      line-height:1.5;
-      margin:0.35rem auto;
-      max-height:55vh;
-      overflow-y:auto;
-      -webkit-overflow-scrolling:touch;
+      line-height:1.55;
+      margin:0.25rem auto 0.65rem;
+      max-height:none !important;
+      overflow:visible;
     }
     .cards{
       grid-template-columns:repeat(2, 1fr);
@@ -576,8 +594,8 @@
 </head>
 <body>
 <audio id="bgm" autoplay preload="auto" loop playsinline>
+  <source src="music.m4a" type="audio/mp4">
   <source src="music.mp3" type="audio/mpeg">
-  <source src="musica.mp3" type="audio/mpeg">
 </audio>
 <button id="music-toggle" class="music-btn" aria-label="Música de fondo" title="Música de fondo">🎵</button>
 <div class="bg" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
@@ -799,7 +817,7 @@ function startPianoFallback(){
         osc.type = 'triangle';
         osc.frequency.setValueAtTime(freq, now + idx * 0.12);
         gain.gain.setValueAtTime(0.001, now + idx * 0.12);
-        gain.gain.exponentialRampToValueAtTime(0.07, now + idx * 0.12 + 0.04);
+        gain.gain.exponentialRampToValueAtTime(0.02, now + idx * 0.12 + 0.04);
         gain.gain.exponentialRampToValueAtTime(0.0001, now + idx * 0.12 + 2.4);
         osc.connect(gain);
         gain.connect(synthCtx.destination);
@@ -819,61 +837,81 @@ function stopPianoFallback(){
   if (synthCtx){ synthCtx.close(); synthCtx = null; }
 }
 
-function startMusic(){
-  if (userInteractedMusic) return;
-  if (!bgm) return;
-  const playPromise = bgm.play();
-  if (playPromise !== undefined){
-    playPromise.then(() => {
+function playBgm(){
+  if (!bgm) {
+    if (!synthPlaying) startPianoFallback();
+    return;
+  }
+  bgm.volume = 0.22;
+  const p = bgm.play();
+  if (p !== undefined){
+    p.then(() => {
       userInteractedMusic = true;
-      if (musicBtn){
-        musicBtn.classList.add('playing');
-        musicBtn.textContent = '🎵';
-      }
+      if (synthPlaying) stopPianoFallback();
       removeAutoListeners();
     }).catch(() => {
-      // Bloqueado temporalmente por política del navegador; el listener al primer toque lo iniciará
+      // Bloqueado temporalmente por el navegador hasta el primer toque del usuario
     });
   }
 }
 
 if (bgm){
+  bgm.addEventListener('playing', () => {
+    userInteractedMusic = true;
+    if (synthPlaying) stopPianoFallback();
+    if (musicBtn){
+      musicBtn.classList.add('playing');
+      musicBtn.textContent = '🎵';
+    }
+  });
+
+  bgm.addEventListener('pause', () => {
+    if (!synthPlaying && musicBtn){
+      musicBtn.classList.remove('playing');
+      musicBtn.textContent = '🔇';
+    }
+  });
+
   bgm.onerror = () => {
-    if (!userInteractedMusic) startPianoFallback();
+    if (userInteractedMusic && !synthPlaying) startPianoFallback();
   };
+
+  try { bgm.load(); } catch(e){}
 }
 
-const tryAutoPlay = () => {
-  if (!userInteractedMusic) startMusic();
-};
+function onFirstUserGesture(){
+  if (userInteractedMusic && bgm && !bgm.paused) {
+    removeAutoListeners();
+    return;
+  }
+  playBgm();
+}
 
-const autoEvents = ['click', 'touchstart', 'touchend', 'pointerdown', 'scroll'];
+const autoEvents = ['pointerdown', 'touchstart', 'click', 'keydown'];
 function addAutoListeners(){
-  autoEvents.forEach(evt => window.addEventListener(evt, tryAutoPlay, { passive: true, capture: true }));
+  autoEvents.forEach(evt => window.addEventListener(evt, onFirstUserGesture, { capture: true, passive: true }));
 }
 function removeAutoListeners(){
-  autoEvents.forEach(evt => window.removeEventListener(evt, tryAutoPlay, { capture: true }));
+  autoEvents.forEach(evt => window.removeEventListener(evt, onFirstUserGesture, { capture: true }));
 }
 
-// Intentar reproducción instantánea
-startMusic();
+// Intentar iniciar o registrar escucha al primer gesto del usuario
+playBgm();
 addAutoListeners();
-document.addEventListener('DOMContentLoaded', startMusic);
-window.addEventListener('load', startMusic);
+document.addEventListener('DOMContentLoaded', playBgm);
+window.addEventListener('load', playBgm);
 
 if (musicBtn){
   musicBtn.onclick = (e) => {
     e.stopPropagation();
-    userInteractedMusic = true;
     if (bgm && !bgm.paused){
       bgm.pause();
-      musicBtn.classList.remove('playing');
-      musicBtn.textContent = '🔇';
     } else if (synthPlaying){
       stopPianoFallback();
       musicBtn.classList.remove('playing');
       musicBtn.textContent = '🔇';
     } else {
+      userInteractedMusic = true;
       if (bgm){
         bgm.play().then(() => {
           musicBtn.classList.add('playing');
@@ -1068,6 +1106,7 @@ function spawnFireSparks(candleIdx, count = 2){
 }
 
 function blow(){
+  if (bgm && bgm.paused) playBgm();
   if (out || cooling) return;
   blows++;
   if (navigator.vibrate) navigator.vibrate([40, 30, 40]);
@@ -1165,6 +1204,7 @@ async function startMic(){
       audio: {echoCancellation:false, noiseSuppression:false, autoGainControl:false}
     });
     listening = true;
+    if (bgm) bgm.volume = 0.10; // Atenuar música durante el soplido para que el micrófono no se confunda
     const ac = new (window.AudioContext || window.webkitAudioContext)();
     if (ac.state === 'suspended') await ac.resume();
     const an = ac.createAnalyser(); an.fftSize = 512;
@@ -1179,6 +1219,7 @@ async function startMic(){
       if (out){
         stream.getTracks().forEach(t => t.stop());
         ac.close();
+        if (bgm) bgm.volume = 0.28; // Restaurar volumen agradable para la carta
         cake.classList.remove('blowing', 'winded');
         $('blow-meter')?.classList.remove('on');
         return;
@@ -1283,7 +1324,14 @@ function openLetter(){
     const nextBtn = $('next');
     nextBtn.classList.remove('hidden');
     nextBtn.classList.add('pulse-attention');
-    focusOn(nextBtn, { align: 'center', delay: 220 });
+    setTimeout(() => {
+      const sLetter = $('s-letter');
+      if (sLetter && sLetter.scrollHeight > sLetter.clientHeight){
+        sLetter.scrollTo({ top: sLetter.scrollHeight, behavior: 'smooth' });
+      } else {
+        focusOn(nextBtn, { align: 'center', delay: 40 });
+      }
+    }, 280);
   };
   if (reduce){
     box.textContent = text;
@@ -1294,15 +1342,21 @@ function openLetter(){
   // Iniciar la escritura a máquina cuando la carta termina de emerger y posicionarse
   setTimeout(() => {
     box.classList.add('typing');
+    const sLetter = $('s-letter');
     (function type(){
       box.textContent = text.slice(0, ++i);
-      if (i % 4 === 0){
+      if (i % 5 === 0){
         const bRect = box.getBoundingClientRect();
-        if (bRect.bottom > window.innerHeight - 75){
-          window.scrollBy({ top: 18, behavior: 'smooth' });
+        const overflowBottom = bRect.bottom - (window.innerHeight - 70);
+        if (overflowBottom > 0){
+          if (sLetter && sLetter.scrollHeight > sLetter.clientHeight){
+            sLetter.scrollBy({ top: overflowBottom + 14, behavior: 'smooth' });
+          } else {
+            window.scrollBy({ top: overflowBottom + 14, behavior: 'smooth' });
+          }
         }
       }
-      if (i < text.length) setTimeout(type, 34); else done();
+      if (i < text.length) setTimeout(type, 32); else done();
     })();
   }, 1300);
 }
