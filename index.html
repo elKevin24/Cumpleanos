@@ -233,12 +233,20 @@
     100%{transform:rotate(32deg) skewX(26deg) scale(1.15, 0.52);opacity:.92}
   }
 
-  .flame.out,.flame-core.out,.halo.out{animation:none !important;opacity:0 !important;transform:scale(.2) !important;transition:opacity .35s,transform .35s}
-  .puff{fill:rgba(140,110,170,.4);opacity:0;transform-box:fill-box;transform-origin:center;animation:puff 1.8s ease-out both}
+  .puff{
+    fill:rgba(225,220,240,.55);
+    opacity:0;
+    transform-box:fill-box;
+    transform-origin:center;
+    filter:blur(1px);
+    animation:puff 2.2s cubic-bezier(.2,.6,.3,1) both;
+  }
   @keyframes puff{
-    0%{opacity:0;transform:translate(0,0) scale(.6)}
-    20%{opacity:.7}
-    100%{opacity:0;transform:translate(6px,-46px) scale(2.4)}
+    0%{opacity:0;transform:translate(0,0) scale(.5)}
+    15%{opacity:.75;transform:translate(calc(var(--wobble, 3px) * -0.5), -10px) scale(1)}
+    45%{opacity:.5;transform:translate(var(--wobble, 6px), -28px) scale(1.6)}
+    75%{opacity:.25;transform:translate(calc(var(--wobble, 6px) * -1.2), -48px) scale(2.4)}
+    100%{opacity:0;transform:translate(calc(var(--wobble, 6px) * 0.8), -68px) scale(3.2);filter:blur(3px)}
   }
   /* Partículas de chispa de fuego que vuelan con el soplido */
   .fire-spark{
@@ -293,11 +301,12 @@
   .sparkle{position:fixed;z-index:20;pointer-events:none;font-size:15px;line-height:1}
 
   /* ---------- Carta ---------- */
-  .polaroid{position:relative;z-index:2;background:#fff;padding:.6rem .6rem 1.8rem;border-radius:6px;
-    box-shadow:0 14px 30px rgba(150,60,140,.28);transform:rotate(-2.5deg);width:min(240px,66vw);margin:.5rem 0 1.4rem}
-  .polaroid::before{content:"";position:absolute;left:50%;top:-12px;width:74px;height:24px;transform:translateX(-50%) rotate(3deg);
+  .polaroid{position:relative;z-index:2;background:#fff;padding:.5rem .5rem 1.6rem;border-radius:6px;
+    box-shadow:0 14px 30px rgba(150,60,140,.26);transform:rotate(-2.5deg);
+    width:min(250px,70vw);margin:.35rem auto .75rem;display:block}
+  .polaroid::before{content:"";position:absolute;left:50%;top:-11px;width:72px;height:22px;transform:translateX(-50%) rotate(3deg);
     background:rgba(255,209,102,.72);border-radius:4px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.5)}
-  .polaroid img{width:100%;display:block;border-radius:3px}
+  .polaroid img{width:100%;height:auto;display:block;border-radius:4px}
   .envelope{position:relative;width:min(290px,80vw);height:180px;padding:0;margin:.4rem auto .8rem;
     background:transparent;border:none;perspective:1000px;transform-style:preserve-3d;
     animation:envelopePopIn 0.85s cubic-bezier(0.34, 1.56, 0.64, 1) both;
@@ -520,7 +529,8 @@
     #hint{margin-top:0.25rem;padding:0.3rem 0.8rem;font-size:0.82rem}
     .blow-meter{margin:0.35rem auto 0;height:8px}
     .actions{margin-top:0.35rem;gap:0.4rem}
-    .polaroid{width:min(145px, 42vw);padding:.35rem .35rem .9rem;margin:.2rem auto .5rem;box-shadow:0 8px 18px rgba(150,60,140,.2)}
+    .polaroid{width:min(180px, 52vw);padding:.35rem .35rem 1.1rem;margin:.2rem auto .45rem;box-shadow:0 10px 22px rgba(150,60,140,.22)}
+    .polaroid img{width:100%;height:auto}
     .envelope{width:min(240px, 78vw);height:140px;margin:.2rem auto .5rem}
     #letter{
       padding:0.9rem 0.95rem;
@@ -1107,11 +1117,16 @@ function blowOut(){
   if (!reduce){
     const g = $('smoke');
     [105, 150, 195].forEach((cxp, i) => {
-      for (let k = 0; k < 2; k++){
+      for (let k = 0; k < 4; k++){
         const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        c.setAttribute('cx', cxp); c.setAttribute('cy', 76); c.setAttribute('r', 4 + k*2);
-        c.setAttribute('class', 'puff'); c.style.animationDelay = (i*180 + k*250 + 150) + 'ms';
+        c.setAttribute('cx', cxp + (Math.random() - 0.5) * 5);
+        c.setAttribute('cy', 82 - k * 3.5);
+        c.setAttribute('r', 3 + k * 1.5);
+        c.setAttribute('class', 'puff');
+        c.style.setProperty('--wobble', ((k % 2 === 0 ? 1 : -1) * (6 + Math.random() * 8)) + 'px');
+        c.style.animationDelay = (i * 110 + k * 180 + 90) + 'ms';
         g.appendChild(c);
+        setTimeout(() => c.remove(), 3200);
       }
     });
   }
@@ -1243,6 +1258,7 @@ function reveal(id, focusTarget = null, align = 'top'){
 function openLetter(){
   const env = $('envelope');
   if (!env || env.classList.contains('open')) return;
+  if (navigator.vibrate) navigator.vibrate(25);
   env.classList.remove('pulse-attention', 'waiting-touch');
   env.classList.add('open');
   env.disabled = true;
@@ -1250,6 +1266,7 @@ function openLetter(){
 
   // Permitir que la solapa se abra y la hoja de papel salga visiblemente hacia arriba del sobre
   setTimeout(() => {
+    if (navigator.vibrate) navigator.vibrate([15, 30, 20]);
     box.classList.remove('hidden');
     box.classList.add('emerging');
     env.classList.add('extracted');
@@ -1292,6 +1309,7 @@ function openLetter(){
 $('envelope').onclick = openLetter;
 
 $('next').onclick = function(){
+  if (navigator.vibrate) navigator.vibrate(20);
   this.classList.remove('pulse-attention');
   reveal('s-reasons', 'progress-wrap', 'top');
 };
@@ -1362,6 +1380,7 @@ document.addEventListener('visibilitychange', () => {
   }
 });
 $('finish').onclick = function(){
+  if (navigator.vibrate) navigator.vibrate([25, 40, 25]);
   this.classList.remove('pulse-attention');
   reveal('s-end', 's-end', 'center');
   setTimeout(() => { confetti(); fireworks(10); startHearts(); }, 700);
@@ -1393,7 +1412,12 @@ CONFIG.razones.forEach((txt, i) => {
   b.className = 'card'; b.setAttribute('aria-pressed','false'); b.style.setProperty('--d', (i*0.9)+'s');
   b.innerHTML = '<span class="in"><span class="face front" aria-hidden="true"><svg class="hicon" viewBox="0 0 24 24"><path d="' + HEART + '"/></svg></span><span class="face back"></span></span>';
   b.querySelector('.back').textContent = txt;
-  b.onclick = () => { b.classList.add('seen'); updateProgress(); b.setAttribute('aria-pressed', b.getAttribute('aria-pressed') === 'true' ? 'false' : 'true'); };
+  b.onclick = () => {
+    if (navigator.vibrate) navigator.vibrate(18);
+    b.classList.add('seen');
+    updateProgress();
+    b.setAttribute('aria-pressed', b.getAttribute('aria-pressed') === 'true' ? 'false' : 'true');
+  };
   $('cards').appendChild(b);
 });
 </script>
