@@ -1136,6 +1136,9 @@ function blow(){
 
 function blowOut(){
   if (out) return; out = true;
+  if (bgm){
+    bgm.volume = 0.50; // Volumen pleno y envolvente tras apagar las velas
+  }
   const cake = $('cake');
   cake.classList.remove('winded', 'blowing');
   cake.style.removeProperty('--blow-angle');
@@ -1219,7 +1222,7 @@ async function startMic(){
       if (out){
         stream.getTracks().forEach(t => t.stop());
         ac.close();
-        if (bgm) bgm.volume = 0.28; // Restaurar volumen agradable para la carta
+        if (bgm) bgm.volume = 0.50; // Restaurar volumen agradable y claro para la carta
         cake.classList.remove('blowing', 'winded');
         $('blow-meter')?.classList.remove('on');
         return;
@@ -1256,6 +1259,7 @@ async function startMic(){
     })();
   }catch(e){
     listening = false;
+    if (bgm) bgm.volume = 0.22;
     $('blow-meter')?.classList.remove('on');
     $('hint').textContent = 'Toca el pastel directamente para apagar las velitas.';
     $('tap').style.transform = 'scale(1.05)';
